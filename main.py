@@ -10,10 +10,11 @@ class PhotoCropper:
         # 初始化變數
         self.original_image = None
         self.image = None
-        self.resize_ratio = None
+        self.resize_ratio = None # 圖片縮放比例
         self.red_box = None
+        self.guild_line = None
         self.crop_size = (3.5, 4.5)
-        self.drag_data = {"x": 0, "y": 0, "item": None}
+        self.drag_data = {"x": 0, "y": 0}
         self.cursor_in_resize_area = False
 
         # 建立 Canvas 用於顯示圖片
@@ -114,7 +115,6 @@ class PhotoCropper:
         # 紀錄點擊位置和被點擊的物件
         self.drag_data["x"] = event.x
         self.drag_data["y"] = event.y
-        self.drag_data["item"] = self.canvas.find_closest(event.x, event.y)[0]
         self.update_cursor(event)
 
     def on_drag(self, event):
@@ -146,7 +146,6 @@ class PhotoCropper:
             )
             self.drag_data["x"] = event.x
             self.drag_data["y"] = event.y
-            self.drag_data["item"] = self.canvas.find_closest(event.x, event.y)[0]
         else:
             # 移動紅框
             delta_x = event.x - self.drag_data["x"]
@@ -166,7 +165,7 @@ class PhotoCropper:
 
     def on_release(self, event):
         # 清空被點擊的物件
-        self.drag_data["item"] = None
+        pass
 
     def on_motion(self, event):
         # 更新游標形狀
