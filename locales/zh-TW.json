@@ -1,0 +1,27 @@
+{
+    "app": {
+        "title": "證件照沖印裁切工具",
+        "msg_change_lang_title": "切換語言",
+        "msg_change_lang_content": "切換語言後需要重新載入頁面，確定要切換語言嗎？"
+    },
+    "homepage": {
+        "btn_cropper": "裁切工具",
+        "btn_generator": "沖印照片生成器"
+    },
+    "cropper": {
+        "title": "裁切工具",
+        "file_title": "檔案",
+        "open_file": "打開圖片",
+        "crop": "裁切圖片",
+        "gen_print": "生成沖印照片",
+        "size_title": "尺寸",
+        "one_inch": "1寸照片",
+        "two_inch": "2寸照片"
+    },
+    "generator": {
+        "title": "沖印照片生成器",
+        "open_file": "打開圖片",
+        "one_inch": "1寸照片",
+        "two_inch": "2寸照片"
+    }
+}

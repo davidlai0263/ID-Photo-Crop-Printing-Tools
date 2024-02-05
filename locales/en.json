@@ -1,0 +1,27 @@
+{
+    "app": {
+        "title": "ID Photo Utility",
+        "msg_change_lang_title": "Change Language",
+        "msg_change_lang_content": "Continuing will reload the page, are you sure?"
+    },
+    "homepage": {
+        "btn_cropper": "Cropper",
+        "btn_generator": "Generator"
+    },
+    "cropper": {
+        "title": "ID Photo Cropper",
+        "file_title": "File",
+        "open_file": "Open File",
+        "crop": "Crop",
+        "gen_print": "Gen Printing Photo",
+        "size_title": "Size",
+        "one_inch": "1 inch",
+        "two_inch": "2 inch"
+    },
+    "generator": {
+        "title": "Gen Printing Photo",
+        "open_file": "Open File",
+        "one_inch": "1 inch",
+        "two_inch": "2 inch"
+    }
+}

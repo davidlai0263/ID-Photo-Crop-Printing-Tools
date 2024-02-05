@@ -27,7 +27,7 @@ class CropperFrame(tk.Frame):
         # title_label.pack()
 
 
-        title_label = tk.Label(self, text="Cropper", font=("Arial", 18))
+        title_label = tk.Label(self, text=self._t("cropper", "title"), font=("Arial", 18))
         title_label.grid(row=0, column=0, columnspan=4, sticky="nsew")
 
         # 建立 Canvas 用於顯示圖片
@@ -35,25 +35,25 @@ class CropperFrame(tk.Frame):
         self.canvas.grid(row=1, column=0, columnspan=4, sticky="nsew")
 
         # 建立打開圖片的按鈕
-        file_title = tk.Label(self, text="檔案")
+        file_title = tk.Label(self, text=self._t("cropper", "file_title"))
         file_title.grid(row=2, column=0, sticky="nsew")
-        open_button = tk.Button(self, text="打開圖片", command=self.open_image)
+        open_button = tk.Button(self, text=self._t("cropper", "open_file"), command=self.open_image)
         open_button.grid(row=2, column=1)
 
         # 建立裁切圖片的按鈕
-        self.crop_button = tk.Button(self, text="裁切圖片", command=self.crop_image, state="disabled")
+        self.crop_button = tk.Button(self, text=self._t("cropper", "crop"), command=self.crop_image, state="disabled")
         self.crop_button.grid(row=2, column=2)
-        self.gen_checkbox = tk.Checkbutton(self, text="生成沖印照片", command=self.change_gen_state, state="disabled")
+        self.gen_checkbox = tk.Checkbutton(self, text=self._t("cropper", "gen_print"), command=self.change_gen_state, state="disabled")
         self.gen_checkbox.grid(row=2, column=3, sticky="nsew")
 
-        size_title = tk.Label(self, text="尺寸")
+        size_title = tk.Label(self, text=self._t("cropper", "size_title"))
         size_title.grid(row=3, column=0, sticky="nsew")
         # 1寸照片
-        self.one_inch_button = tk.Button(self, text="1寸照片", command=self.one_inch, state="disabled")
+        self.one_inch_button = tk.Button(self, text=self._t("cropper", "one_inch"), command=self.one_inch, state="disabled")
         self.one_inch_button.grid(row=3, column=1)
 
         # 2寸照片
-        self.two_inch_button = tk.Button(self, text="2寸照片", command=self.two_inch, state="disabled")
+        self.two_inch_button = tk.Button(self, text=self._t("cropper", "two_inch"), command=self.two_inch, state="disabled")
         self.two_inch_button.grid(row=3, column=2)
 
         # Debug
@@ -261,6 +261,9 @@ class CropperFrame(tk.Frame):
             self.cursor_in_resize_area = False
     def change_gen_state(self):
         self.crop_and_gen = not self.crop_and_gen
+
+    def _t(self, section, key):
+        return self.controller.localeUtil.translate(section, key)
 
 
 if __name__ == "__main__":

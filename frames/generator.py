@@ -9,11 +9,12 @@ class GeneratorFrame(tk.Frame):
         # 初始化變數
         self.image_size = None
         self.original_image = None
+        self.controller = controller
 
         # 標題容器
         title_frame = tk.Frame(self)
         title_frame.pack(side="top", fill="x")
-        title_label = tk.Label(title_frame, text="Generator", font=("Arial", 18))
+        title_label = tk.Label(title_frame, text=self._t("generator", "title"), font=("Arial", 18))
         title_label.pack()
 
         # 建立 Canvas 用於顯示圖片
@@ -21,15 +22,15 @@ class GeneratorFrame(tk.Frame):
         self.canvas.pack()
 
         # 建立打開圖片的按鈕
-        self.open_button = tk.Button(self, text="打開圖片", command=self.open_image)
+        self.open_button = tk.Button(self, text=self._t("generator", "open_file"), command=self.open_image)
         self.open_button.pack()
 
         # 1寸照片
-        self.one_inch_button = tk.Button(self, text="1寸照片", command=self.one_inch, state="disabled")
+        self.one_inch_button = tk.Button(self, text=self._t("generator", "one_inch"), command=self.one_inch, state="disabled")
         self.one_inch_button.pack()
 
         # 2寸照片
-        self.two_inch_button = tk.Button(self, text="2寸照片", command=self.two_inch, state="disabled")
+        self.two_inch_button = tk.Button(self, text=self._t("generator", "two_inch"), command=self.two_inch, state="disabled")
         self.two_inch_button.pack()
 
     # 打開圖片
@@ -115,3 +116,6 @@ class GeneratorFrame(tk.Frame):
     def outer_generate_image(self, image_size):
         self.image_size = image_size
         self.generate_image()
+    
+    def _t(self, section, key):
+        return self.controller.localeUtil.translate(section, key)
