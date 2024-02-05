@@ -96,3 +96,22 @@ class GeneratorFrame(tk.Frame):
                 image.paste(photo, (x, y))
         # 顯示圖片
         image.show()
+    
+    # 調用生成功能
+    #
+    #
+    def outer_set_original_image(self, image):
+        self.original_image = image.copy()
+        resize_ratio = 500 / max(image.size)
+        print(image.size)
+        image.thumbnail((image.size[0] * resize_ratio, image.size[1] * resize_ratio))  # 調整圖片大小
+        photo = ImageTk.PhotoImage(image)
+
+        # 更新圖片
+        self.canvas.image = photo
+        self.canvas.create_image(0, 0, anchor=tk.NW, image=photo)
+        self.one_inch_button["state"] = "normal"
+        self.two_inch_button["state"] = "normal"
+    def outer_generate_image(self, image_size):
+        self.image_size = image_size
+        self.generate_image()

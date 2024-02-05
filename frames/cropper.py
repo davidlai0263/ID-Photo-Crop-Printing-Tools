@@ -3,9 +3,10 @@ import tkinter as tk
 from tkinter import filedialog
 
 class CropperFrame(tk.Frame):
-    def __init__(self, parent, controller):
+    def __init__(self, parent, controller, generator_frame_instance):
         tk.Frame.__init__(self, parent)
         self.controller = controller
+        self.generator_frame_instance = generator_frame_instance
 
         # 初始化變數
         self.original_image = None
@@ -17,42 +18,59 @@ class CropperFrame(tk.Frame):
         self.crop_size = (3.5, 4.5)
         self.drag_data = {"x": 0, "y": 0}
         self.cursor_in_resize_area = False
+        self.crop_and_gen = False
 
         # 標題容器
-        title_frame = tk.Frame(self)
-        title_frame.pack(side="top", fill="x")
-        title_label = tk.Label(title_frame, text="Cropper", font=("Arial", 18))
-        title_label.pack()
+        # title_frame = tk.Frame(self)
+        # title_frame.grid(row=0, column=0, columnspan=4, sticky="nsew")
+        # title_label = tk.Label(title_frame, text="Cropper", font=("Arial", 18))
+        # title_label.pack()
+
+
+        title_label = tk.Label(self, text="Cropper", font=("Arial", 18))
+        title_label.grid(row=0, column=0, columnspan=4, sticky="nsew")
 
         # 建立 Canvas 用於顯示圖片
         self.canvas = tk.Canvas(self, width=500, height=500)
-        self.canvas.pack()
+        self.canvas.grid(row=1, column=0, columnspan=4, sticky="nsew")
 
         # 建立打開圖片的按鈕
-        self.open_button = tk.Button(self, text="打開圖片", command=self.open_image)
-        self.open_button.pack()
+        file_title = tk.Label(self, text="檔案")
+        file_title.grid(row=2, column=0, sticky="nsew")
+        open_button = tk.Button(self, text="打開圖片", command=self.open_image)
+        open_button.grid(row=2, column=1)
 
         # 建立裁切圖片的按鈕
-        self.crop_button = tk.Button(self, text="裁切圖片", command=self.crop_image)
-        self.crop_button.pack()
+        self.crop_button = tk.Button(self, text="裁切圖片", command=self.crop_image, state="disabled")
+        self.crop_button.grid(row=2, column=2)
+        self.gen_checkbox = tk.Checkbutton(self, text="生成沖印照片", command=self.change_gen_state, state="disabled")
+        self.gen_checkbox.grid(row=2, column=3, sticky="nsew")
 
+        size_title = tk.Label(self, text="尺寸")
+        size_title.grid(row=3, column=0, sticky="nsew")
         # 1寸照片
-        self.one_inch_button = tk.Button(self, text="1寸照片", command=self.one_inch)
-        self.one_inch_button.pack()
+        self.one_inch_button = tk.Button(self, text="1寸照片", command=self.one_inch, state="disabled")
+        self.one_inch_button.grid(row=3, column=1)
 
         # 2寸照片
-        self.two_inch_button = tk.Button(self, text="2寸照片", command=self.two_inch)
-        self.two_inch_button.pack()
+        self.two_inch_button = tk.Button(self, text="2寸照片", command=self.two_inch, state="disabled")
+        self.two_inch_button.grid(row=3, column=2)
 
         # Debug
-        self.debug_button = tk.Button(self, text="Debug", command=self.debug)
-        self.debug_button.pack()
+        debug_button = tk.Button(self, text="Debug", command=self.debug)
+        # debug_button.grid(row=4, column=0)
 
         # 監聽滑鼠事件
         self.canvas.bind("<ButtonPress-1>", self.on_press)
         self.canvas.bind("<B1-Motion>", self.on_drag)
         self.canvas.bind("<ButtonRelease-1>", self.on_release)
         self.canvas.bind("<Motion>", self.on_motion)
+
+        # 設定行和列的權重
+        for i in range(5):
+            self.grid_rowconfigure(i, weight=1)
+        for i in range(3):
+            self.grid_columnconfigure(i, weight=1)
 
     def one_inch(self):
         self.crop_size = (2.8, 3.5)
@@ -72,39 +90,60 @@ class CropperFrame(tk.Frame):
             self.image = Image.open(file_path)
             self.original_image = self.image.copy()
             self.resize_ratio = 500 / max(self.image.size)
-            print(self.image.size)
+            # print(self.image.size)
             self.image.thumbnail((self.image.size[0] * self.resize_ratio, self.image.size[1] * self.resize_ratio))  # 調整圖片大小
             self.photo = ImageTk.PhotoImage(self.image)
 
             # 更新圖片
             self.canvas.image = self.photo
             self.canvas.create_image(0, 0, anchor=tk.NW, image=self.photo)
+            self.one_inch_button["state"] = "normal"
+            self.two_inch_button["state"] = "normal"
+            self.crop_button["state"] = "normal"
+            self.gen_checkbox["state"] = "normal"
 
             # 繪製紅框
             self.draw_red_box()
 
     def draw_red_box(self):
+        # 若紅框、輔助線存在則刪除
         if self.red_box:
             self.canvas.delete("red_box")
+            self.red_box = None
+        if self.guild_line:
+            self.canvas.delete("guildline")
+            self.guild_line = None
+        
+        # 裁切尺寸設定
         box_width = self.crop_size[0]
         box_height = self.crop_size[1]
         box_ratio = box_width / box_height
 
+        # 計算紅框邊緣貼齊哪軸
+        # 若圖片寬高比大於紅框寬高比，則紅框貼齊圖片寬
         if self.canvas.image.width() / self.canvas.image.height() > box_ratio:
             box_height = self.canvas.image.height()
             box_width = box_height * box_ratio
+        # 若圖片寬高比小於紅框寬高比，則紅框貼齊圖片高
         else:
             box_width = self.canvas.image.width()
             box_height = box_width / box_ratio
 
+        # 計算紅框的位置
         box_x = (self.canvas.image.width() - box_width) / 2
-        box_y = (self.canvas.image.height() - box_height) / 2
+        box_y = (self.canvas.image.height() - box_height) / 2  
 
         self.red_box = self.canvas.create_rectangle(
             box_x, box_y,
             box_x + box_width, box_y + box_height,
             outline="red", width=3, tags="red_box"
         )
+
+        if self.crop_size == (3.5, 4.5):
+            self.guild_line = self.canvas.create_rectangle(
+                box_x + 5, box_y + box_height * 0.06,
+                box_x - 5 + box_width, box_y + box_height * 0.86,
+                outline="blue", width=2, tags="guildline")
 
     def crop_image(self):
         box_coords = self.canvas.coords(self.red_box)
@@ -115,6 +154,11 @@ class CropperFrame(tk.Frame):
 
         # 顯示裁切後的圖片
         self.cropped_image.show()
+
+        if self.crop_and_gen:
+            self.generator_frame_instance.outer_set_original_image(self.cropped_image)
+            self.generator_frame_instance.outer_generate_image(self.crop_size)
+            self.controller.show_frame("Generator")
 
     def on_press(self, event):
         if not self.image:
@@ -129,6 +173,8 @@ class CropperFrame(tk.Frame):
             return
         box_coords = self.canvas.coords(self.red_box)
         box_x, box_y, box_x2, box_y2 = box_coords
+
+        # 縮放功能
         if self.cursor_in_resize_area:
             delta_x = event.x - box_x2
             box_x2 = box_x2 + delta_x
@@ -140,7 +186,7 @@ class CropperFrame(tk.Frame):
             if box_x2 > self.canvas.image.width():
                 box_x2 = self.canvas.image.width()
                 box_y2 = box_y + (box_x2 - box_x) / (self.crop_size[0] / self.crop_size[1])
-            elif box_y2 > self.canvas.image.height():
+            if box_y2 > self.canvas.image.height():
                 box_y2 = self.canvas.image.height()
                 box_x2 = box_x + (box_y2 - box_y) / (self.crop_size[1] / self.crop_size[0])
 
@@ -153,6 +199,14 @@ class CropperFrame(tk.Frame):
             )
             self.drag_data["x"] = event.x
             self.drag_data["y"] = event.y
+            if self.guild_line:
+                self.canvas.delete("guildline")
+                self.guild_line = self.canvas.create_rectangle(
+                    box_x + 5, box_y + (box_y2 - box_y) * 0.06,
+                    box_x2 - 5, box_y + (box_y2 - box_y) * 0.86,
+                    outline="blue", width=2, tags="guildline")
+        
+        # 移動功能
         else:
             # 移動紅框
             delta_x = event.x - self.drag_data["x"]
@@ -169,6 +223,10 @@ class CropperFrame(tk.Frame):
             self.canvas.move(self.red_box, delta_x, delta_y)
             self.drag_data["x"] = event.x
             self.drag_data["y"] = event.y
+
+            # 移動輔助線
+            if self.canvas.find_withtag("guildline"):
+                self.canvas.move(self.guild_line, delta_x, delta_y)
 
     def on_release(self, event):
         # 清空被點擊的物件
@@ -201,10 +259,14 @@ class CropperFrame(tk.Frame):
             # 游標在其他區域
             self.controller.config(cursor="")
             self.cursor_in_resize_area = False
+    def change_gen_state(self):
+        self.crop_and_gen = not self.crop_and_gen
 
 
 if __name__ == "__main__":
     root = tk.Tk()
-    app = CropperFrame(root, root)
-    app.pack()
+    app = CropperFrame(root, root, None)
+    app.grid(row=0, column=0, sticky="nsew")
+    root.grid_rowconfigure(0, weight=1)
+    root.grid_columnconfigure(0, weight=1)
     root.mainloop()
