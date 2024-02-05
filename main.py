@@ -12,7 +12,7 @@ class HomePage(tk.Tk):
         # 初始化變數
         self.settings = Settings()
         self.localeUtil = Locale(self.settings.get("language"))
-        self.title(self._t("homepage", "title"))
+        self.title(self._t("app", "title"))
 
         # 頁面切換按鈕框架
         button_frame = tk.Frame(self)
