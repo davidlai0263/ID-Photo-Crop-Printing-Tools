@@ -3,10 +3,10 @@ import tkinter as tk
 from tkinter import filedialog
 
 class CropperFrame(tk.Frame):
-    def __init__(self, parent, controller, generator_frame_instance):
+    def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
-        self.generator_frame_instance = generator_frame_instance
+        self.generator_frame_instance = controller.frames["Generator"]
 
         # 初始化變數
         self.original_image = None
@@ -27,34 +27,34 @@ class CropperFrame(tk.Frame):
         # title_label.pack()
 
 
-        title_label = tk.Label(self, text=self._t("cropper", "title"), font=("Arial", 18))
-        title_label.grid(row=0, column=0, columnspan=4, sticky="nsew")
+        self.lb_title = tk.Label(self, text=self._t("cropper", "lb_title"), font=("Arial", 18))
+        self.lb_title.grid(row=0, column=0, columnspan=4, sticky="nsew")
 
         # 建立 Canvas 用於顯示圖片
         self.canvas = tk.Canvas(self, width=500, height=500)
         self.canvas.grid(row=1, column=0, columnspan=4, sticky="nsew")
 
         # 建立打開圖片的按鈕
-        file_title = tk.Label(self, text=self._t("cropper", "file_title"))
-        file_title.grid(row=2, column=0, sticky="nsew")
-        open_button = tk.Button(self, text=self._t("cropper", "open_file"), command=self.open_image)
-        open_button.grid(row=2, column=1)
+        self.lb_file = tk.Label(self, text=self._t("cropper", "lb_file"))
+        self.lb_file.grid(row=2, column=0, sticky="nsew")
+        self.btn_open = tk.Button(self, text=self._t("cropper", "btn_open"), command=self.open_image)
+        self.btn_open.grid(row=2, column=1)
 
         # 建立裁切圖片的按鈕
-        self.crop_button = tk.Button(self, text=self._t("cropper", "crop"), command=self.crop_image, state="disabled")
-        self.crop_button.grid(row=2, column=2)
-        self.gen_checkbox = tk.Checkbutton(self, text=self._t("cropper", "gen_print"), command=self.change_gen_state, state="disabled")
-        self.gen_checkbox.grid(row=2, column=3, sticky="nsew")
+        self.btn_crop = tk.Button(self, text=self._t("cropper", "btn_crop"), command=self.crop_image, state="disabled")
+        self.btn_crop.grid(row=2, column=2)
+        self.cb_gen = tk.Checkbutton(self, text=self._t("cropper", "cb_gen"), command=self.change_gen_state, state="disabled")
+        self.cb_gen.grid(row=2, column=3, sticky="nsew")
 
-        size_title = tk.Label(self, text=self._t("cropper", "size_title"))
-        size_title.grid(row=3, column=0, sticky="nsew")
+        self.lb_size = tk.Label(self, text=self._t("cropper", "lb_size"))
+        self.lb_size.grid(row=3, column=0, sticky="nsew")
         # 1寸照片
-        self.one_inch_button = tk.Button(self, text=self._t("cropper", "one_inch"), command=self.one_inch, state="disabled")
-        self.one_inch_button.grid(row=3, column=1)
+        self.btn_one_inch = tk.Button(self, text=self._t("cropper", "btn_one_inch"), command=self.one_inch, state="disabled")
+        self.btn_one_inch.grid(row=3, column=1)
 
         # 2寸照片
-        self.two_inch_button = tk.Button(self, text=self._t("cropper", "two_inch"), command=self.two_inch, state="disabled")
-        self.two_inch_button.grid(row=3, column=2)
+        self.btn_two_inch = tk.Button(self, text=self._t("cropper", "btn_two_inch"), command=self.two_inch, state="disabled")
+        self.btn_two_inch.grid(row=3, column=2)
 
         # Debug
         debug_button = tk.Button(self, text="Debug", command=self.debug)
@@ -97,10 +97,10 @@ class CropperFrame(tk.Frame):
             # 更新圖片
             self.canvas.image = self.photo
             self.canvas.create_image(0, 0, anchor=tk.NW, image=self.photo)
-            self.one_inch_button["state"] = "normal"
-            self.two_inch_button["state"] = "normal"
-            self.crop_button["state"] = "normal"
-            self.gen_checkbox["state"] = "normal"
+            self.btn_one_inch["state"] = "normal"
+            self.btn_two_inch["state"] = "normal"
+            self.btn_crop["state"] = "normal"
+            self.cb_gen["state"] = "normal"
 
             # 繪製紅框
             self.draw_red_box()
@@ -264,7 +264,10 @@ class CropperFrame(tk.Frame):
 
     def _t(self, section, key):
         return self.controller.localeUtil.translate(section, key)
-
+    
+    def refresh(self, translations):
+        for key, translate in translations["cropper"].items():
+            getattr(self, key).config(text=translate)
 
 if __name__ == "__main__":
     root = tk.Tk()

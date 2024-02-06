@@ -14,24 +14,24 @@ class GeneratorFrame(tk.Frame):
         # 標題容器
         title_frame = tk.Frame(self)
         title_frame.pack(side="top", fill="x")
-        title_label = tk.Label(title_frame, text=self._t("generator", "title"), font=("Arial", 18))
-        title_label.pack()
+        self.lb_title = tk.Label(title_frame, text=self._t("generator", "lb_title"), font=("Arial", 18))
+        self.lb_title.pack()
 
         # 建立 Canvas 用於顯示圖片
         self.canvas = tk.Canvas(self, width=500, height=500)
         self.canvas.pack()
 
         # 建立打開圖片的按鈕
-        self.open_button = tk.Button(self, text=self._t("generator", "open_file"), command=self.open_image)
-        self.open_button.pack()
+        self.btn_open = tk.Button(self, text=self._t("generator", "btn_open"), command=self.open_image)
+        self.btn_open.pack()
 
         # 1寸照片
-        self.one_inch_button = tk.Button(self, text=self._t("generator", "one_inch"), command=self.one_inch, state="disabled")
-        self.one_inch_button.pack()
+        self.btn_one_inch = tk.Button(self, text=self._t("generator", "btn_one_inch"), command=self.one_inch, state="disabled")
+        self.btn_one_inch.pack()
 
         # 2寸照片
-        self.two_inch_button = tk.Button(self, text=self._t("generator", "two_inch"), command=self.two_inch, state="disabled")
-        self.two_inch_button.pack()
+        self.btn_two_inch = tk.Button(self, text=self._t("generator", "btn_two_inch"), command=self.two_inch, state="disabled")
+        self.btn_two_inch.pack()
 
     # 打開圖片
     def open_image(self):
@@ -41,7 +41,7 @@ class GeneratorFrame(tk.Frame):
             image = Image.open(file_path)
             self.original_image = image.copy()
             resize_ratio = 500 / max(image.size)
-            print(image.size)
+            # print(image.size)
             image.thumbnail((image.size[0] * resize_ratio, image.size[1] * resize_ratio))  # 調整圖片大小
             photo = ImageTk.PhotoImage(image)
 
@@ -49,8 +49,8 @@ class GeneratorFrame(tk.Frame):
             self.canvas.image = photo
             self.canvas.create_image(0, 0, anchor=tk.NW, image=photo)
 
-            self.one_inch_button["state"] = "normal"
-            self.two_inch_button["state"] = "normal"
+            self.btn_one_inch["state"] = "normal"
+            self.btn_two_inch["state"] = "normal"
 
     # 1寸照片
     def one_inch(self):
@@ -104,18 +104,22 @@ class GeneratorFrame(tk.Frame):
     def outer_set_original_image(self, image):
         self.original_image = image.copy()
         resize_ratio = 500 / max(image.size)
-        print(image.size)
+        # print(image.size)
         image.thumbnail((image.size[0] * resize_ratio, image.size[1] * resize_ratio))  # 調整圖片大小
         photo = ImageTk.PhotoImage(image)
 
         # 更新圖片
         self.canvas.image = photo
         self.canvas.create_image(0, 0, anchor=tk.NW, image=photo)
-        self.one_inch_button["state"] = "normal"
-        self.two_inch_button["state"] = "normal"
+        self.btn_one_inch["state"] = "normal"
+        self.btn_two_inch["state"] = "normal"
     def outer_generate_image(self, image_size):
         self.image_size = image_size
         self.generate_image()
     
     def _t(self, section, key):
         return self.controller.localeUtil.translate(section, key)
+
+    def refresh(self, translations):
+        for key, translation in translations["generator"].items():
+            getattr(self, key).config(text=translation)
