@@ -81,9 +81,9 @@ class GeneratorFrame(tk.Frame):
         num_horizontal = int((image_width - 2 * margin + gap) / (self.image_size[0] + gap))
         num_vertical = int((image_height - 2 * margin + gap) / (self.image_size[1] + gap))
 
-        # 計算小圖的起始位置
-        start_x = int(margin * image_quality)
-        start_y = int(margin * image_quality)
+        # 計算小圖的起始位置(置中)
+        start_x = int((image_width - num_horizontal * self.image_size[0] - (num_horizontal - 1) * gap) * image_quality / 2)
+        start_y = int((image_height - num_vertical * self.image_size[1] - (num_vertical - 1) * gap) * image_quality / 2)
 
         # 生成小圖填充到長方形
         for i in range(num_horizontal):
